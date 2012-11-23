@@ -1,0 +1,21 @@
+#! /usr/bin/env ruby
+
+require 'rubygems'
+
+if File.exists?(File.join(File.expand_path('../..', __FILE__), '.git'))
+  lib_path = File.expand_path('../../lib', __FILE__)
+  $:.unshift(lib_path)
+end
+
+require 'presence'
+# Presence::CLI::Root.start
+
+# s = Presence::Scanner.new
+# s.register_listener(Presence::Logger.new)
+# s.register_listener(Presence::Tracker.new)
+# s.scan
+
+Presence::Scanner.scan_loop do |s|
+  s.register_listener(Presence::Logger.new)
+  s.register_listener(Presence::Tracker.new)
+end
