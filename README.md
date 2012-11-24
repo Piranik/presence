@@ -20,9 +20,10 @@ Install the gem
 
     $ presence_scan
 
-## Source
+## Reference
 
-https://github.com/subakva/presence/
+* Source: https://github.com/subakva/presence/
+* RDoc: http://rdoc.info/github/subakva/presence/master/frames
 
 ## Contributing
 
