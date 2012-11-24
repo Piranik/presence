@@ -18,7 +18,7 @@ Install the gem
 
 ## Usage
 
-TODO: Write usage instructions here
+    $ presence_scan
 
 ## Source
 
