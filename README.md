@@ -1,5 +1,8 @@
 # Presence
 
+[![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/subakva/presence)
+[![Build Status](https://secure.travis-ci.org/subakva/presence.png)](http://travis-ci.org/subakva/presence)
+
 Monitors the local network for presence of network clients by MAC address.
 
 ## Installation
