@@ -10,7 +10,7 @@ describe Presence::Scanner do
 
   let(:commands) {
     commands = stub(Presence::Commands)
-    Presence::Commands.should_receive(:new).and_return(commands)
+    Presence::Commands.stub(:new).and_return(commands)
     commands
   }
   let(:listener) {
@@ -27,6 +27,63 @@ describe Presence::Scanner do
     commands.stub(:arping).with(local_ip).and_return([arping_cmd, local_mac])
     commands.stub(:arping).with(ip).and_return([arping_cmd, mac])
   }
+
+  describe '.check_env' do
+    before {
+      commands.stub(:run).with('which ifconfig').and_return('/sbin/ifconfig')
+      commands.stub(:run).with('which arping').and_return('/usr/local/sbin/arping')
+    }
+
+    it 'checks for ifconfig' do
+      commands.should_receive(:run).with('which ifconfig').and_return('/sbin/ifconfig')
+      Presence::Scanner.check_env
+    end
+
+    it 'raises an exception if ifconfig is not found' do
+      commands.should_receive(:run).with('which ifconfig').and_return('')
+      expect {
+        Presence::Scanner.check_env
+      }.to raise_error(Presence::InvalidEnvironment, "Unsupported platform: ifconfig not found.")
+    end
+
+    it 'checks for arping' do
+      commands.should_receive(:run).with('which arping').and_return('/usr/local/sbin/arping')
+      Presence::Scanner.check_env
+    end
+
+    it 'raises an exception if arping is not found' do
+      commands.should_receive(:run).with('which arping').and_return('')
+      expect {
+        Presence::Scanner.check_env
+      }.to raise_error(Presence::InvalidEnvironment, "Unsupported platform: arping not found.")
+    end
+  end
+
+  describe '.scan_loop' do
+    let(:scanner) { mock(Presence::Scanner) }
+    before { Presence::Scanner.should_receive(:new).and_return(scanner) }
+
+    it 'scans until interrupted' do
+      scanner.should_receive(:scan)
+      scanner.should_receive(:scan)
+      scanner.should_receive(:scan).and_raise(Interrupt.new)
+      Presence::Scanner.scan_loop
+    end
+
+    it 'yields the scanner instance to a block' do
+      scanner.stub(:scan).and_raise(Interrupt.new)
+      scanner.should_receive(:register_listener)
+      Presence::Scanner.scan_loop do |s|
+        s.register_listener(Object.new)
+      end
+    end
+  end
+
+  describe '#to_s' do
+    it 'overrides to_s' do
+      scanner.to_s.should == "<Presence::Scanner ip_prefix: '10.0.1' octet_range: (30..32)>"
+    end
+  end
 
   describe '#scan' do
     it 'dispatches a scan_started event' do

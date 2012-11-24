@@ -7,20 +7,23 @@ module Presence
   # list of MAC addresses on the network and detect when a new client connects
   # or when a connected client disconnects.
   class Tracker
+
     def initialize
       @mac_history = {}
       @current_list = Presence::MACList.new
     end
 
     def listener_registered(l, scanner)
-      scanner.register_listener(@current_list) if l == self
+      @scanner ||= scanner
+      @scanner.register_listener(@current_list) if l == self
     end
 
     def mac_found(ip, mac)
       if @mac_history[mac].nil?
-        mac_connected(mac, ip)
+        dispatch(:mac_connected, mac, ip)
       elsif @mac_history[mac] != ip
-        mac_changed(mac, @mac_history[mac], ip)
+        old_ip = @mac_history[mac]
+        dispatch(:mac_changed, mac, old_ip, ip)
       end
       @mac_history[mac] = ip
     end
@@ -29,25 +32,14 @@ module Presence
       macs_left = @mac_history.keys - @current_list.macs_found.keys
       macs_left.each do |mac|
         old_ip = @mac_history[mac]
-        mac_disconnected(mac, old_ip)
+        dispatch(:mac_disconnected, mac, old_ip)
         @mac_history.delete(mac)
       end
       @current_list.macs_found.clear
     end
 
-    def mac_connected(mac, ip)
-      puts " ** #{mac} connected as #{ip}"
-      # Do something interesting.
-    end
-
-    def mac_changed(mac, old_ip, new_ip)
-      puts " ** #{mac} changed ip from: #{old_ip} to #{new_ip}"
-      # Do something interesting.
-    end
-
-    def mac_disconnected(mac, old_ip)
-      puts " ** #{mac} disconnected from #{old_ip}"
-      # Do something interesting.
+    def dispatch(event, *args)
+      @scanner.dispatch(event, *args)
     end
   end
 end

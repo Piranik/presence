@@ -82,12 +82,11 @@ module Presence
     class << self
       def check_env
         commands = Commands.new
-        if commands.run('which ifconfig').size == 0
-          raise Presence::InvalidEnvironment.new("Unsupported platform: ifconfig not found.")
-        end
-        if commands.run('which arping').size == 0
-          raise Presence::InvalidEnvironment.new("Unsupported platform: arping not found.")
-          raise Presence::InvalidEnvironment.new("Install arping first: brew install arping")
+        required_commands = %w{ifconfig arping}
+        required_commands.each do |cmd|
+          if commands.run("which #{cmd}").size == 0
+            raise Presence::InvalidEnvironment.new("Unsupported platform: #{cmd} not found.")
+          end
         end
       end
 

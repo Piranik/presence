@@ -8,14 +8,28 @@ if File.exists?(File.join(File.expand_path('../..', __FILE__), '.git'))
 end
 
 require 'presence'
+
 # Presence::CLI::Root.start
 
+# Usage: presence [OPTIONS]
+#
+# presence --start 10.0.1.1 --end 10.0.1.30
+# presence --prefix 192.168.0
+# presence --verbose
+# presence --quiet
+# presence --once
+# presence --loop
+# presence --listener Carnegie::Listener
+
+# --once
 # s = Presence::Scanner.new
 # s.register_listener(Presence::Logger.new)
 # s.register_listener(Presence::Tracker.new)
 # s.scan
 
+# --loop
 Presence::Scanner.scan_loop do |s|
+  # s.options[:octet_range] = (30..32)
   s.register_listener(Presence::Logger.new)
   s.register_listener(Presence::Tracker.new)
 end

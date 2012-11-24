@@ -10,5 +10,6 @@ SimpleCov.formatter = SimpleCov::Formatter::QualityFormatter
 
 SimpleCov.start do
   add_filter '/spec/'
-  add_group 'CLI', 'lib/duple/cli'
+  add_group 'CLI', 'lib/presence/cli'
+  add_group 'Listeners', 'lib/presence/listeners'
 end
