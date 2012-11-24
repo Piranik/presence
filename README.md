@@ -20,6 +20,10 @@ Install the gem
 
 TODO: Write usage instructions here
 
+## Source
+
+https://github.com/subakva/presence/
+
 ## Contributing
 
 1. Fork it
