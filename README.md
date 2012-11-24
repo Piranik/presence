@@ -24,6 +24,7 @@ Install the gem
 
 * Source: https://github.com/subakva/presence/
 * RDoc: http://rdoc.info/github/subakva/presence/master/frames
+* arping: https://github.com/ThomasHabets/arping
 
 ## Contributing
 
