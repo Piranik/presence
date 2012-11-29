@@ -19,13 +19,14 @@ describe Presence::Scanner do
     listener
   }
   let(:octet_range) { (30..32) }
-  let(:scanner) { Presence::Scanner.new(octet_range: octet_range) }
+  let(:retries) { 1 }
+  let(:scanner) { Presence::Scanner.new(octet_range: octet_range, retries: retries) }
 
   before {
     commands.stub(:local_ip).and_return(local_ip)
     commands.stub(:arping).and_return([arping_cmd, 'No such jeaun'])
-    commands.stub(:arping).with(local_ip).and_return([arping_cmd, local_mac])
-    commands.stub(:arping).with(ip).and_return([arping_cmd, mac])
+    commands.stub(:arping).with(local_ip, retries).and_return([arping_cmd, local_mac])
+    commands.stub(:arping).with(ip, retries).and_return([arping_cmd, mac])
   }
 
   describe '.check_env' do
@@ -105,8 +106,17 @@ describe Presence::Scanner do
   end
 
   describe '#scan_ip' do
+    context 'with a retries option' do
+      let(:retries) { 4 }
+
+      it 'uses the configured number of retries' do
+        commands.should_receive(:arping).with(ip, 4).and_return([arping_cmd, mac])
+        scanner.scan_ip(ip)
+      end
+    end
+
     it 'executes arping to check for a mac address' do
-      commands.should_receive(:arping).with(ip).and_return([arping_cmd, mac])
+      commands.should_receive(:arping).with(ip, 1).and_return([arping_cmd, mac])
       scanner.scan_ip(ip)
     end
 
@@ -129,7 +139,7 @@ describe Presence::Scanner do
 
     context 'with a non-existent IP' do
       before {
-        commands.stub(:arping).with(ip).and_return([arping_cmd, 'No such jeaun'])
+        commands.stub(:arping).with(ip, 1).and_return([arping_cmd, 'No such jeaun'])
       }
 
       it 'does not dispatch a mac_found event' do

@@ -5,7 +5,7 @@ module Presence
   # Scans a network for connected clients, captures the MAC address, and
   # dispatches related events to any registered listeners.
   class Scanner
-    PAIR = '[0-9a-f]{2}'
+    PAIR = '[0-9a-fA-F]{2}'
     SEP = '\:'
     MAC_REGEXP = Regexp.new("(#{6.times.map {PAIR}.join(SEP)})")
 
@@ -14,6 +14,7 @@ module Presence
     def initialize(options = nil)
       options ||= {}
       self.options = {
+        retries:      1,
         ip_prefix:    nil,
         octet_range: (1..255)
       }.merge(options)
@@ -45,6 +46,10 @@ module Presence
       options[:octet_range]
     end
 
+    def retries
+      options[:retries]
+    end
+
     def scan
       dispatch(:scan_started, ip_prefix, octet_range)
       octet_range.each do |i|
@@ -54,7 +59,7 @@ module Presence
     end
 
     def scan_ip(ip)
-      cmd, result = @commands.arping(ip)
+      cmd, result = @commands.arping(ip, retries)
       dispatch(:ip_scanned, ip, cmd, result)
       process_scan_result(ip, cmd, result)
     end

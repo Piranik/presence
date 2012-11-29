@@ -1,8 +1,8 @@
 module Presence
   # Wrapper class for shell command execution.
   class Commands
-    def arping(ip)
-      cmd = "sudo arping -c 1 #{ip}"
+    def arping(ip, retries = 1)
+      cmd = "sudo arping -c #{retries} #{ip}"
       result = run(cmd)
       [cmd, result]
     end
